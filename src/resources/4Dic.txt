@@ -1,0 +1,4 @@
+get image http 1.0
+get http 1.0
+get images hm_brdr.gif http 1.1
+get http 1.1
