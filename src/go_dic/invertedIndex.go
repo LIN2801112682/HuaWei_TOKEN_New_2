@@ -6,12 +6,9 @@ type inverted_index struct {
 	position int
 }
 
-func NewInverted_index (sid int , p int) *inverted_index {
+func NewInverted_index(sid int, p int) *inverted_index {
 	return &inverted_index{
-		sid: sid,
+		sid:      sid,
 		position: p,
 	}
 }
-
-
-
