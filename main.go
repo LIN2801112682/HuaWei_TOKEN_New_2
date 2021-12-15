@@ -17,17 +17,27 @@ func main() {
 	fmt.Println("字典树D内存占用大小：")
 	traceMemStats()
 	fmt.Println()
-	root := go_dic.GererateTree("src/resources/4Dic.txt", 2, 3, 10) //
+	root := go_dic.GererateTree("src/resources/5Dic.txt", 2, 3, 3) //
 	fmt.Println()
 	traceMemStats()
-
 	fmt.Println()
+
 	fmt.Println("索引项集：===============================================================")
 	fmt.Println()
 	fmt.Println("索引项集内存占用大小：")
 	traceMemStats()
 	fmt.Println()
-	go_dic.GererateIndex("src/resources/2Index.txt", 2, 3, root)
+	indexTree := go_dic.GererateIndex("src/resources/2Index.txt", 2, 3, root) //
+	fmt.Println()
+	traceMemStats()
+	fmt.Println()
+
+	fmt.Println("新增索引后的索引项集：===============================================================")
+	fmt.Println()
+	fmt.Println("索引项集内存占用大小：")
+	traceMemStats()
+	fmt.Println()
+	go_dic.AddIndex("src/resources/add1Index.txt", 2, 3, root, indexTree)
 	fmt.Println()
 	traceMemStats()
 	fmt.Println()

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -23,22 +24,14 @@ func GererateTree(filename string, qmin int, qmax int, T int) *trieTreeNode {
 			break
 		}
 		str := (string)(data)
-		for i := 0; i < len(str)-qmax; i++ {
-			substring := str[i : i+qmax]
-			//字符串变字符串数组
-			gram := make([]string, qmax)
-			for j := 0; j < qmax; j++ {
-				gram[j] = substring[j : j+1]
-			}
-			InsertIntoTrieTree(tree, &gram)
+		tokenArray := strings.Fields(str)
+		for i := 0; i < len(tokenArray)-qmax; i++ {
+			var substring = tokenArray[i : i+qmax]
+			InsertIntoTrieTree(tree, &substring)
 		}
-		for i := len(str) - qmax; i < len(str)-qmin+1; i++ {
-			substring := str[i:len(str)]
-			gram := make([]string, len(str)-i)
-			for j := 0; j < len(str)-i; j++ {
-				gram[j] = substring[j : j+1]
-			}
-			InsertIntoTrieTree(tree, &gram)
+		for i := len(tokenArray) - qmax; i < len(tokenArray)-qmin+1; i++ {
+			var substring = tokenArray[i:len(tokenArray)]
+			InsertIntoTrieTree(tree, &substring)
 		}
 	}
 	PruneTree(tree, T)

@@ -1,0 +1,5 @@
+get english images team_hm_header_shad.gif http 1.0
+get english nav_top_inet.html http 1.0
+get images hm_brdr.gif http 1.1
+get http 1.1
+get images comp_stage2_brc_topr.gif http 1.0
