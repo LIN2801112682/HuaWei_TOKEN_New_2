@@ -17,7 +17,7 @@ func main() {
 	fmt.Println("字典树D内存占用大小：")
 	//traceMemStats()
 	fmt.Println()
-	root := go_dic.GererateTree("src/resources/5Dic.txt", 2, 3, 10) //
+	root := go_dic.GererateTree("src/resources/500Dic.txt", 1, 3, 10) //
 	fmt.Println()
 	//traceMemStats()
 	fmt.Println()
@@ -27,7 +27,7 @@ func main() {
 	fmt.Println("索引项集内存占用大小：")
 	traceMemStats()
 	fmt.Println()
-	_, indexTreeNode := go_dic.GererateIndex("src/resources/2Index.txt", 2, 3, root) //
+	_, indexTreeNode := go_dic.GererateIndex("src/resources/100Index.txt", 1, 3, root) //
 	fmt.Println()
 	traceMemStats()
 	fmt.Println()
@@ -42,6 +42,6 @@ func main() {
 	//traceMemStats()
 	fmt.Println()*/
 
-	resInt := go_dic.MatchSearch("get http 1.1", root, indexTreeNode)
+	resInt := go_dic.MatchSearch("nav_bg_bottom.jpg", root, indexTreeNode, 1, 3)
 	fmt.Println(resInt)
 }

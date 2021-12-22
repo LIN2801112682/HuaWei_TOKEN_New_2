@@ -2,41 +2,54 @@ package go_dic
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
-func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode) []int {
+func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode, qmin int, qmax int) []int {
 	start2 := time.Now()
 	var vgMap map[int][]string
 	vgMap = make(map[int][]string)
-	VGCons(root, 2, 3, searchStr, vgMap)
+	VGCons(root, qmin, qmax, searchStr, vgMap)
 	//fmt.Println(vgMap)
 	var resArr []int
-	for i := 0; i < len(vgMap); i++ {
+	seaPositionDis := 0
+	var inverPositionDis []int
+	fields := strings.Fields(searchStr)
+	for i := 0; i < len(fields); i++ { // 0 1 3   len(searchStr)
 		tokenArr := vgMap[i]
-		invertIndex = nil
-		searchIndexTree(tokenArr, indexRoot, 0)
-		//cnt := len(tokenArr)  位置信息如何考虑？
-		if invertIndex == nil {
-			return nil
-		}
-		if i == 0 {
-			for j := 0; j < len(invertIndex); j++ {
-				sid := invertIndex[j].sid
-				resArr = append(resArr, sid)
+		if tokenArr != nil {
+			seaPositionDis = i - seaPositionDis
+			invertIndex = nil
+			searchIndexTree(tokenArr, indexRoot, 0)
+			if invertIndex == nil {
+				return nil
 			}
-		} else {
-			for j := 0; j < len(resArr); j++ { //遍历之前合并好的resArr
-				sidResArr := resArr[j]
-				var k int
-				for k = 0; k < len(invertIndex); k++ {
-					sid := invertIndex[k].sid
-					if sidResArr == sid {
-						break
-					}
+			if i == 0 {
+				for j := 0; j < len(invertIndex); j++ {
+					sid := invertIndex[j].sid
+					inverPositionDis = append(inverPositionDis, invertIndex[j].position)
+					resArr = append(resArr, sid)
 				}
-				if k == len(invertIndex) { //新的倒排表id不在之前合并好的结果集resArr 把此id从resArr删除
-					resArr = append(resArr[:j], resArr[j+1:]...)
+			} else {
+				//var lenRes = len(resArr)
+				for j := 0; j < len(resArr); j++ { //遍历之前合并好的resArr
+					sidResArr := resArr[j]
+					var k int
+					for k = 0; k < len(invertIndex); k++ {
+						sid := invertIndex[k].sid
+						if sidResArr == sid {
+							inverPositionDis[j] = invertIndex[k].position - inverPositionDis[j]
+							if inverPositionDis[j] == seaPositionDis {
+								break
+							}
+						}
+					}
+					if k == len(invertIndex) { //新的倒排表id不在之前合并好的结果集resArr 把此id从resArr删除
+						resArr = append(resArr[:j], resArr[j+1:]...)
+						inverPositionDis = append(inverPositionDis[:j], inverPositionDis[j+1:]...)
+						j--
+					}
 				}
 			}
 		}
