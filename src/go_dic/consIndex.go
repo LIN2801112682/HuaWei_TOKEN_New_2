@@ -58,7 +58,7 @@ func VGCons(root *trieTreeNode, qmin int, qmax int, str string, vgMap map[int][]
 		FindLongestGramFromDic(root, tokenArray, p)
 		//fmt.Println(vgMap)
 		t := tSub
-		if len(t) == 0 || (IsEqualOfTwoStringArr(t, tokenArray[p:p+qmin]) == false) {
+		if len(t) == 0 || (IsEqualOfTwoStringArr(t, tokenArray[p:p+len(t)]) == false) {
 			t = tokenArray[p : p+qmin]
 		}
 		if !IsSubStrOfVG(t, vgMap) {

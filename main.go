@@ -37,11 +37,11 @@ func main() {
 	fmt.Println("索引项集内存占用大小：")
 	//traceMemStats()
 	fmt.Println()
-	go_dic.AddIndex("src/resources/add2000.txt", 2, 3, root, indexTree)
+	go_dic.AddIndex("src/resources/add2000.txt", 1, 3, root, indexTree)
 	fmt.Println()
 	//traceMemStats()
 	fmt.Println()*/
 
-	resInt := go_dic.MatchSearch("nav_bg_bottom.jpg", root, indexTreeNode, 1, 3)
+	resInt := go_dic.MatchSearch("venues", root, indexTreeNode, 1, 3) //get english venues
 	fmt.Println(resInt)
 }

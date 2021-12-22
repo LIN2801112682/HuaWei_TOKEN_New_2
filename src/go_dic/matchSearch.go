@@ -2,6 +2,8 @@ package go_dic
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
 	"strings"
 	"time"
 )
@@ -11,7 +13,7 @@ func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode,
 	var vgMap map[int][]string
 	vgMap = make(map[int][]string)
 	VGCons(root, qmin, qmax, searchStr, vgMap)
-	//fmt.Println(vgMap)
+	fmt.Println(vgMap)
 	var resArr []int
 	seaPositionDis := 0
 	var inverPositionDis []int
@@ -21,7 +23,14 @@ func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode,
 		if tokenArr != nil {
 			seaPositionDis = i - seaPositionDis
 			invertIndex = nil
-			searchIndexTree(tokenArr, indexRoot, 0)
+			searchIndexTreeFromLeaves(tokenArr, indexRoot, 0)
+			invertIndex = RemoveSliceInvertIndex(invertIndex)
+			sort.SliceStable(invertIndex, func(i, j int) bool {
+				if invertIndex[i].sid < invertIndex[j].sid {
+					return true
+				}
+				return false
+			})
 			if invertIndex == nil {
 				return nil
 			}
@@ -61,17 +70,47 @@ func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode,
 
 var invertIndex []inverted_index
 
-func searchIndexTree(tokenArr []string, indexRoot *indexTreeNode, i int) {
+//查询当前串对应的倒排表（叶子节点）
+func searchIndexTreeFromLeaves(tokenArr []string, indexRoot *indexTreeNode, i int) {
 	if indexRoot == nil {
 		return
 	}
 	for j := 0; j < len(indexRoot.children); j++ {
-		if i == len(tokenArr)-1 && tokenArr[i] == indexRoot.children[j].data {
+		if i == len(tokenArr)-1 && tokenArr[i] == indexRoot.children[j].data { //找到那一层的倒排表
 			for k := 0; k < len(indexRoot.children[j].invertedIndexList); k++ {
 				invertIndex = append(invertIndex, *indexRoot.children[j].invertedIndexList[k])
 			}
-		} else if tokenArr[i] == indexRoot.children[j].data {
-			searchIndexTree(tokenArr, indexRoot.children[j], i+1)
+			i++
+		}
+		if i < len(tokenArr)-1 && tokenArr[i] == indexRoot.children[j].data {
+			searchIndexTreeFromLeaves(tokenArr, indexRoot.children[j], i+1)
+		}
+		if i > len(tokenArr)-1 && len(indexRoot.children[j].children) != 0 { //找到那一层后面节点的倒排表 合并一起  len(tokenArr)-1 != 0 &&
+			for l := 0; l < len(indexRoot.children[j].children); l++ {
+				if indexRoot.children[j].children[l].invertedIndexList != nil {
+					for k := 0; k < len(indexRoot.children[j].children[l].invertedIndexList); k++ {
+						invertIndex = append(invertIndex, *indexRoot.children[j].children[l].invertedIndexList[k])
+					}
+				}
+				searchIndexTreeFromLeaves(tokenArr, indexRoot.children[j].children[l], i+1)
+			}
 		}
 	}
+}
+
+func RemoveSliceInvertIndex(invertIndex []inverted_index) (ret []inverted_index) {
+	n := len(invertIndex)
+	for i := 0; i < n; i++ {
+		state := false
+		for j := i + 1; j < n; j++ {
+			if j > 0 && reflect.DeepEqual(invertIndex[i], invertIndex[j]) {
+				state = true
+				break
+			}
+		}
+		if !state {
+			ret = append(ret, invertIndex[i])
+		}
+	}
+	return
 }
