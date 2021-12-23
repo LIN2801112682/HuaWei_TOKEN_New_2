@@ -44,7 +44,6 @@ func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode,
 					resArr = append(resArr, sid)
 				}
 			} else {
-				//var lenRes = len(resArr)
 				for j := 0; j < len(resArr); j++ { //遍历之前合并好的resArr
 					sidResArr := resArr[j]
 					var k int
@@ -88,7 +87,6 @@ func searchIndexTreeFromLeaves(tokenArr []string, indexRoot *indexTreeNode, i in
 				invertIndex = append(invertIndex, *indexRoot.children[j].invertedIndexList[k])
 			}
 			indexNode = indexRoot.children[j]
-			//i++
 		}
 	}
 }
