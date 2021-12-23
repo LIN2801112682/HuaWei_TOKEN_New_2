@@ -23,7 +23,10 @@ func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode,
 		if tokenArr != nil {
 			seaPositionDis = i - seaPositionDis
 			invertIndex = nil
+			invertIndex2 = nil
 			searchIndexTreeFromLeaves(tokenArr, indexRoot, 0)
+			searchListsTreeFromLeaves(indexNode)
+			invertIndex = append(invertIndex, invertIndex2...)
 			invertIndex = RemoveSliceInvertIndex(invertIndex)
 			sort.SliceStable(invertIndex, func(i, j int) bool {
 				if invertIndex[i].sid < invertIndex[j].sid {
@@ -69,6 +72,7 @@ func MatchSearch(searchStr string, root *trieTreeNode, indexRoot *indexTreeNode,
 }
 
 var invertIndex []inverted_index
+var indexNode *indexTreeNode
 
 //查询当前串对应的倒排表（叶子节点）
 func searchIndexTreeFromLeaves(tokenArr []string, indexRoot *indexTreeNode, i int) {
@@ -76,24 +80,30 @@ func searchIndexTreeFromLeaves(tokenArr []string, indexRoot *indexTreeNode, i in
 		return
 	}
 	for j := 0; j < len(indexRoot.children); j++ {
+		if i < len(tokenArr)-1 && tokenArr[i] == indexRoot.children[j].data {
+			searchIndexTreeFromLeaves(tokenArr, indexRoot.children[j], i+1)
+		}
 		if i == len(tokenArr)-1 && tokenArr[i] == indexRoot.children[j].data { //找到那一层的倒排表
 			for k := 0; k < len(indexRoot.children[j].invertedIndexList); k++ {
 				invertIndex = append(invertIndex, *indexRoot.children[j].invertedIndexList[k])
 			}
-			i++
+			indexNode = indexRoot.children[j]
+			//i++
 		}
-		if i < len(tokenArr)-1 && tokenArr[i] == indexRoot.children[j].data {
-			searchIndexTreeFromLeaves(tokenArr, indexRoot.children[j], i+1)
-		}
-		if i > len(tokenArr)-1 && len(indexRoot.children[j].children) != 0 { //找到那一层后面节点的倒排表 合并一起  len(tokenArr)-1 != 0 &&
-			for l := 0; l < len(indexRoot.children[j].children); l++ {
-				if indexRoot.children[j].children[l].invertedIndexList != nil {
-					for k := 0; k < len(indexRoot.children[j].children[l].invertedIndexList); k++ {
-						invertIndex = append(invertIndex, *indexRoot.children[j].children[l].invertedIndexList[k])
-					}
+	}
+}
+
+var invertIndex2 []inverted_index
+
+func searchListsTreeFromLeaves(indexNode *indexTreeNode) {
+	if indexNode != nil {
+		for l := 0; l < len(indexNode.children); l++ {
+			if indexNode.children[l].invertedIndexList != nil {
+				for k := 0; k < len(indexNode.children[l].invertedIndexList); k++ {
+					invertIndex2 = append(invertIndex2, *indexNode.children[l].invertedIndexList[k])
 				}
-				searchIndexTreeFromLeaves(tokenArr, indexRoot.children[j].children[l], i+1)
 			}
+			searchListsTreeFromLeaves(indexNode.children[l])
 		}
 	}
 }

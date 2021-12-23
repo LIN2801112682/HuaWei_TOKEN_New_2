@@ -42,6 +42,6 @@ func main() {
 	//traceMemStats()
 	fmt.Println()*/
 
-	resInt := go_dic.MatchSearch("venues", root, indexTreeNode, 1, 3) //get english venues
+	resInt := go_dic.MatchSearch("cities", root, indexTreeNode, 1, 3) //get english venues
 	fmt.Println(resInt)
 }
