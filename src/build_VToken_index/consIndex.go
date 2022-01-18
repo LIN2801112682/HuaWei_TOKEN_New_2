@@ -1,7 +1,8 @@
-package go_dic
+package build_VToken_index
 
 import (
 	"bufio"
+	"build_dictionary"
 	"fmt"
 	"io"
 	"os"
@@ -10,7 +11,7 @@ import (
 )
 
 //根据一批日志数据通过字典树划分VG，构建索引项集
-func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) (*indexTree, *indexTreeNode) {
+func GererateIndex(filename string, qmin int, qmax int, root *build_dictionary.TrieTreeNode) (*IndexTree, *IndexTreeNode) {
 	indexTree := NewIndexTree(qmin, qmax)
 	data, err := os.Open(filename)
 	defer data.Close()
@@ -31,7 +32,6 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) (*in
 		str := string(data)
 		start2 := time.Now()
 		VGCons(root, qmin, qmax, str, vgMap)
-		//fmt.Println(vgMap)
 		for vgKey := range vgMap {
 			tokenArr := vgMap[vgKey]
 			InsertIntoIndexTree(indexTree, &tokenArr, sid, vgKey)
@@ -39,24 +39,22 @@ func GererateIndex(filename string, qmin int, qmax int, root *trieTreeNode) (*in
 		end2 := time.Since(start2).Microseconds()
 		sum = int(end2) + sum
 	}
-	indexTree.cout = sid
+	indexTree.Cout = sid
 	UpdateIndexRootFrequency(indexTree)
 	fmt.Println("构建索引项集花费时间（us）：", sum)
 	PrintIndexTree(indexTree)
-	return indexTree, indexTree.root
+	return indexTree, indexTree.Root
 }
 
 var tSub []string
 
 //根据字典D划分日志为VG
-func VGCons(root *trieTreeNode, qmin int, qmax int, str string, vgMap map[int][]string) {
+func VGCons(root *build_dictionary.TrieTreeNode, qmin int, qmax int, str string, vgMap map[int][]string) {
 	tokenArray := strings.Fields(str)
 	len1 := len(tokenArray)
 	for p := 0; p < len1-qmin+1; p++ {
 		tSub = tSub[0:0]
-		//fmt.Println(vgMap)
 		FindLongestGramFromDic(root, tokenArray, p)
-		//fmt.Println(vgMap)
 		t := tSub
 		if len(t) == 0 || (IsEqualOfTwoStringArr(t, tokenArray[p:p+len(t)]) == false) {
 			t = tokenArray[p : p+qmin]
@@ -67,8 +65,6 @@ func VGCons(root *trieTreeNode, qmin int, qmax int, str string, vgMap map[int][]
 			}
 			//vgMap[p] = t 字符串数组不能直接赋值
 		}
-		//fmt.Println(vgMap)
-		//fmt.Println("=========")
 	}
 }
 func IsEqualOfTwoStringArr(str1 []string, str2 []string) bool {
@@ -90,13 +86,11 @@ func IsSubStrOfVG(t []string, vgMap map[int][]string) bool {
 	for i := 0; i < len(t); i++ {
 		tstr += t[i]
 	}
-	//fmt.Println(tstr)
 	for vgKey := range vgMap {
 		str := vgMap[vgKey]
 		for j := 0; j < len(str); j++ {
 			strNew += str[j]
 		}
-		//fmt.Println(strNew)
 		if strings.Contains(strNew, tstr) {
 			flag = true
 			break
@@ -105,15 +99,14 @@ func IsSubStrOfVG(t []string, vgMap map[int][]string) bool {
 	return flag
 }
 
-func FindLongestGramFromDic(root *trieTreeNode, str []string, p int) {
+func FindLongestGramFromDic(root *build_dictionary.TrieTreeNode, str []string, p int) {
 	if p < len(str) {
 		c := str[p : p+1]
 		s := strings.Join(c, "")
-		for i := 0; i < len(root.children); i++ {
-			if root.children[i].data == s {
+		for i := 0; i < len(root.Children); i++ {
+			if root.Children[i].Data == s {
 				tSub = append(tSub, s)
-				//fmt.Println(tSub)
-				FindLongestGramFromDic(root.children[i], str, p+1)
+				FindLongestGramFromDic(root.Children[i], str, p+1)
 			}
 		}
 	}

@@ -1,19 +1,19 @@
-package go_dic
+package build_VToken_index
 
-type indexTree struct {
+type IndexTree struct {
 	qmin int
 	qmax int
-	cout int
-	root *indexTreeNode
+	Cout int
+	Root *IndexTreeNode
 }
 
 //初始化trieTree
-func NewIndexTree(qmin int, qmax int) *indexTree {
-	return &indexTree{
+func NewIndexTree(qmin int, qmax int) *IndexTree {
+	return &IndexTree{
 		qmin: qmin,
 		qmax: qmax,
-		cout: 0,
-		root: NewIndexTreeNode(""),
+		Cout: 0,
+		Root: NewIndexTreeNode(""),
 	}
 }
 
@@ -22,24 +22,24 @@ func NewIndexTree(qmin int, qmax int) *indexTree {
 //token:待插入数组字符串
 //sid:字符串所属sid
 //position:字符串在sid中的位置
-func InsertIntoIndexTree(tree *indexTree, token *[]string, sid int, position int) {
+func InsertIntoIndexTree(tree *IndexTree, token *[]string, sid int, position int) {
 	//初始化node、qmin
-	node := tree.root
+	node := tree.Root
 	qmin := tree.qmin
 	// 孩子节点在childrenlist中的位置
 	var childindex = 0
 	for i, str := range *token {
-		childindex = getIndexNode(node.children, (*token)[i])
+		childindex = getIndexNode(node.Children, (*token)[i])
 		if childindex == -1 {
 			// childrenlist里没有该节点
 			currentnode := NewIndexTreeNode(str)
-			IndexNodeArrayInsertStrategy(&node.children, currentnode)
+			IndexNodeArrayInsertStrategy(&node.Children, currentnode)
 			node = currentnode
 		} else {
 			//childrenlist里有该节点
 			//childrenindex为该节点在数组中的位置
-			node = node.children[childindex]
-			node.frequency++
+			node = node.Children[childindex]
+			node.Frequency++
 		}
 		//从root的孩子节点开始判断，少一层故大于等于 qmin-1 不是qmin
 		if i >= qmin-1 {
@@ -52,14 +52,14 @@ func InsertIntoIndexTree(tree *indexTree, token *[]string, sid int, position int
 	}
 }
 
-func PrintIndexTree(tree *indexTree) {
-	PrintIndexTreeNode(tree.root, 0)
+func PrintIndexTree(tree *IndexTree) {
+	PrintIndexTreeNode(tree.Root, 0)
 }
 
 //更新root节点的频率
-func UpdateIndexRootFrequency(tree *indexTree) {
-	for _, child := range tree.root.children {
-		tree.root.frequency += child.frequency
+func UpdateIndexRootFrequency(tree *IndexTree) {
+	for _, child := range tree.Root.Children {
+		tree.Root.Frequency += child.Frequency
 	}
-	tree.root.frequency--
+	tree.Root.Frequency--
 }
