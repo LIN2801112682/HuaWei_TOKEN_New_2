@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"time"
 )
@@ -19,8 +20,10 @@ func GererateIndex(filename string, qmin int, qmax int, root *build_dictionary.T
 		fmt.Print(err)
 	}
 	buff := bufio.NewReader(data)
-	sid := 0
+	var id int32
+	id = 0
 	var sum = 0
+	timeStamp := time.Now().Unix()
 	for {
 		data, _, eof := buff.ReadLine()
 		if eof == io.EOF {
@@ -28,25 +31,33 @@ func GererateIndex(filename string, qmin int, qmax int, root *build_dictionary.T
 		}
 		var vgMap map[int][]string
 		vgMap = make(map[int][]string)
-		sid++
+		id++
+		timeStamp++
+		sid := NewSeriesId(id, timeStamp)
 		str := string(data)
 		start2 := time.Now()
 		VGCons(root, qmin, qmax, str, vgMap)
-		for vgKey := range vgMap {
+		var keys = []int{}
+		for key := range vgMap {
+			keys = append(keys, key)
+		}
+		//对map中的key进行排序（map遍历是无序的）
+		sort.Sort(sort.IntSlice(keys))
+		for i := 0; i < len(keys); i++ {
+			vgKey := keys[i]
+			//字符串变字符串数组
 			tokenArr := vgMap[vgKey]
-			InsertIntoIndexTree(indexTree, &tokenArr, sid, vgKey)
+			InsertIntoIndexTree(indexTree, &tokenArr, *sid, vgKey)
 		}
 		end2 := time.Since(start2).Microseconds()
 		sum = int(end2) + sum
 	}
-	indexTree.Cout = sid
+	indexTree.Cout = (int(id))
 	UpdateIndexRootFrequency(indexTree)
 	fmt.Println("构建索引项集花费时间（us）：", sum)
-	PrintIndexTree(indexTree)
+	//PrintIndexTree(indexTree)
 	return indexTree, indexTree.Root
 }
-
-var tSub []string
 
 //根据字典D划分日志为VG
 func VGCons(root *build_dictionary.TrieTreeNode, qmin int, qmax int, str string, vgMap map[int][]string) {
@@ -56,14 +67,13 @@ func VGCons(root *build_dictionary.TrieTreeNode, qmin int, qmax int, str string,
 		tSub = tSub[0:0]
 		FindLongestGramFromDic(root, tokenArray, p)
 		t := tSub
-		if len(t) == 0 || (IsEqualOfTwoStringArr(t, tokenArray[p:p+len(t)]) == false) {
+		if len(t) == 0 || len(t) < qmin {
 			t = tokenArray[p : p+qmin]
 		}
 		if !IsSubStrOfVG(t, vgMap) {
 			for i := 0; i < len(t); i++ {
 				vgMap[p] = append(vgMap[p], t[i])
 			}
-			//vgMap[p] = t 字符串数组不能直接赋值
 		}
 	}
 }
@@ -91,13 +101,17 @@ func IsSubStrOfVG(t []string, vgMap map[int][]string) bool {
 		for j := 0; j < len(str); j++ {
 			strNew += str[j]
 		}
-		if strings.Contains(strNew, tstr) {
+		if strNew == tstr {
+			return false
+		} else if strings.Contains(strNew, tstr) {
 			flag = true
 			break
 		}
 	}
 	return flag
 }
+
+var tSub []string
 
 func FindLongestGramFromDic(root *build_dictionary.TrieTreeNode, str []string, p int) {
 	if p < len(str) {
@@ -107,6 +121,9 @@ func FindLongestGramFromDic(root *build_dictionary.TrieTreeNode, str []string, p
 			if root.Children[i].Data == s {
 				tSub = append(tSub, s)
 				FindLongestGramFromDic(root.Children[i], str, p+1)
+			}
+			if i == len(root.Children) {
+				return
 			}
 		}
 	}
