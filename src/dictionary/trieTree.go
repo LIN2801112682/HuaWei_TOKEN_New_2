@@ -1,9 +1,33 @@
-package build_dictionary
+package dictionary
 
 type TrieTree struct {
 	qmin int
 	qmax int
 	root *TrieTreeNode
+}
+
+func (t *TrieTree) Qmin() int {
+	return t.qmin
+}
+
+func (t *TrieTree) SetQmin(qmin int) {
+	t.qmin = qmin
+}
+
+func (t *TrieTree) Qmax() int {
+	return t.qmax
+}
+
+func (t *TrieTree) SetQmax(qmax int) {
+	t.qmax = qmax
+}
+
+func (t *TrieTree) Root() *TrieTreeNode {
+	return t.root
+}
+
+func (t *TrieTree) SetRoot(root *TrieTreeNode) {
+	t.root = root
 }
 
 //初始化trieTree
@@ -18,23 +42,23 @@ func NewTrieTree(qmin int, qmax int) *TrieTree {
 //将gram插入trieTree上
 //trieTree:待插入的树
 //substring:待插入数组字符串
-func InsertIntoTrieTree(tree *TrieTree, substring *[]string) {
+func (tree *TrieTree) InsertIntoTrieTree(substring *[]string) {
 	//初始化node、qmin
 	node := tree.root
 	qmin := tree.qmin
 	// 孩子节点在childrenlist中的位置
 	var childindex = 0
 	for i, str := range *substring {
-		childindex = getNode(node.Children, (*substring)[i])
+		childindex = getNode(node.children, (*substring)[i])
 		if childindex == -1 {
 			// childrenlist里没有该节点
 			currentnode := NewTrieTreeNode(str)
-			NodeArrayInsertStrategy(&node.Children, currentnode)
+			node.children = append(node.children, currentnode)
 			node = currentnode
 		} else {
 			//childrenlist里有该节点
 			//childrenindex为该节点在数组中的位置
-			node = node.Children[childindex]
+			node = node.children[childindex]
 			node.frequency++
 		}
 		if i >= qmin-1 {
@@ -46,17 +70,17 @@ func InsertIntoTrieTree(tree *TrieTree, substring *[]string) {
 //剪枝
 //trieTree:待修剪的树
 //T:阈值
-func PruneTree(tree *TrieTree, T int) {
-	PruneNode(tree.root, T)
+func (tree *TrieTree) PruneTree(T int) {
+	tree.root.PruneNode(T)
 }
 
-func PrintTree(tree *TrieTree) {
-	PrintTreeNode(tree.root, 0)
+func (tree *TrieTree) PrintTree() {
+	tree.root.PrintTreeNode(0)
 }
 
 //更新root节点的频率
-func UpdateRootFrequency(tree *TrieTree) {
-	for _, child := range tree.root.Children {
+func (tree *TrieTree) UpdateRootFrequency() {
+	for _, child := range tree.root.children {
 		tree.root.frequency += child.frequency
 	}
 	tree.root.frequency--

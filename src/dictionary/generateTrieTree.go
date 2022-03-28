@@ -1,4 +1,4 @@
-package build_dictionary
+package dictionary
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func GererateTree(filename string, qmin int, qmax int, T int) *TrieTreeNode {
+func GenerateDictionaryTree(filename string, qmin int, qmax int, T int) *TrieTreeNode {
 	tree := NewTrieTree(qmin, qmax)
 	data, err := os.Open(filename)
 	defer data.Close()
@@ -28,21 +28,21 @@ func GererateTree(filename string, qmin int, qmax int, T int) *TrieTreeNode {
 		tokenArray := strings.Fields(str)
 		for i := 0; i < len(tokenArray)-qmax; i++ {
 			var substring = tokenArray[i : i+qmax]
-			InsertIntoTrieTree(tree, &substring)
+			tree.InsertIntoTrieTree(&substring)
 		}
 		for i := len(tokenArray) - qmax; i < len(tokenArray)-qmin+1; i++ {
 			var substring = tokenArray[i:len(tokenArray)]
-			InsertIntoTrieTree(tree, &substring)
+			tree.InsertIntoTrieTree(&substring)
 		}
 		end2 := time.Since(start2).Microseconds()
 		sum = int(end2) + sum
 	}
 	start1 := time.Now()
-	PruneTree(tree, T)
+	tree.PruneTree(T)
 	end1 := time.Since(start1).Microseconds()
 	sum = int(end1) + sum
-	UpdateRootFrequency(tree)
+	tree.UpdateRootFrequency()
 	fmt.Println("构建字典树花费时间（us）：", sum)
-	//PrintTree(tree)
+	//tree.PrintTree()
 	return tree.root
 }
